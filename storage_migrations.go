@@ -13,7 +13,12 @@ import (
 var migrationsFS embed.FS
 
 func (p *PgStorage) MigrateUp(ctx context.Context) error {
-	m, err := migrate.NewMigrator(ctx, p.db.Conn(), p.migrationTableName)
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+
+	m, err := migrate.NewMigrator(ctx, conn, p.migrationTableName)
 	if err != nil {
 		return fmt.Errorf("unable to create migrator: %v", err)
 	}

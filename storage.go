@@ -16,7 +16,7 @@ type (
 
 	// DB interface
 	DB interface {
-		Conn() *pgx.Conn
+		Conn(context.Context) (*pgx.Conn, error)
 	}
 
 	// Client interface
@@ -123,7 +123,13 @@ func (p PgStorage) dbCreateRequest(ctx context.Context, request *Request) (err e
 	if err != nil {
 		return err
 	}
-	_, err = p.db.Conn().Exec(ctx, `
+
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(ctx, `
 		INSERT INTO `+p.tablesPrefix+`request (
 			id,
 			"type",
@@ -156,7 +162,12 @@ func (p PgStorage) dbCreateRequest(ctx context.Context, request *Request) (err e
 }
 
 func (p PgStorage) dbFindRequestBySignature(ctx context.Context, signature string) (request *Request, err error) {
-	row := p.db.Conn().QueryRow(ctx, `
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	row := conn.QueryRow(ctx, `
 		SELECT
 			id,
 			"type",

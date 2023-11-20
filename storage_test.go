@@ -42,8 +42,8 @@ type connAsDB struct {
 	conn *pgx.Conn
 }
 
-func (m *connAsDB) Conn() *pgx.Conn {
-	return m.conn
+func (m *connAsDB) Conn(_ context.Context) (*pgx.Conn, error) {
+	return m.conn, nil
 }
 
 type mockClient struct{}
@@ -132,7 +132,7 @@ func TestSchemaToRequest(t *testing.T) {
 	request := &Request{
 		Request: fosite.Request{
 			ID:          "id",
-			RequestedAt: time.Now().UTC(),
+			RequestedAt: time.Now().UTC().Round(time.Minute),
 			Client:      &fosite.DefaultClient{},
 			RequestedScope: []string{
 				"scope1",

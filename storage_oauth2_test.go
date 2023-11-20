@@ -23,7 +23,7 @@ func TestAuthorizeCodeSession(t *testing.T) {
 
 	request := &fosite.Request{
 		ID:             "id",
-		RequestedAt:    time.Now().Round(time.Second).UTC(),
+		RequestedAt:    time.Now().Round(time.Minute).UTC(),
 		Client:         &fosite.DefaultClient{},
 		RequestedScope: fosite.Arguments{"scope"},
 		GrantedScope:   fosite.Arguments{"scope"},

@@ -46,7 +46,12 @@ func (p *PgStorage) GetAuthorizeCodeSession(ctx context.Context, signature strin
 // code should be set to invalid and consecutive requests to GetAuthorizeCodeSession should return the
 // ErrInvalidatedAuthorizeCode error.
 func (p *PgStorage) InvalidateAuthorizeCodeSession(ctx context.Context, signature string) (err error) {
-	_, err = p.db.Conn().Exec(ctx, `UPDATE `+p.tablesPrefix+`request SET active = false WHERE signature = $1`, signature)
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(ctx, `UPDATE `+p.tablesPrefix+`request SET active = false WHERE signature = $1`, signature)
 	return
 }
 
@@ -79,7 +84,12 @@ func (p *PgStorage) GetAccessTokenSession(ctx context.Context, signature string,
 
 // DeleteAccessTokenSession deletes an access token
 func (p *PgStorage) DeleteAccessTokenSession(ctx context.Context, signature string) (err error) {
-	_, err = p.db.Conn().Exec(ctx, `DELETE FROM `+p.tablesPrefix+`request WHERE signature = $1`, p.hashAccessTokenSignature(signature))
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(ctx, `DELETE FROM `+p.tablesPrefix+`request WHERE signature = $1`, p.hashAccessTokenSignature(signature))
 	return
 }
 
@@ -109,7 +119,12 @@ func (p *PgStorage) GetRefreshTokenSession(ctx context.Context, signature string
 }
 
 func (p *PgStorage) DeleteRefreshTokenSession(ctx context.Context, signature string) (err error) {
-	_, err = p.db.Conn().Exec(ctx, `DELETE FROM `+p.tablesPrefix+`request WHERE signature = $1`, signature)
+	conn, err := p.db.Conn(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = conn.Exec(ctx, `DELETE FROM `+p.tablesPrefix+`request WHERE signature = $1`, signature)
 	return
 }
 
